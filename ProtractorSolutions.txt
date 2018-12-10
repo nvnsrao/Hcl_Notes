@@ -1,0 +1,34 @@
+1. is not assignable to parameter of type 'Expected<Promise<string>>'. [2345]
+
+
+
+Until this is fixed there are several workarounds:
+
+Fix the version of the typings to 2.5.45
+This will simply use the latest working version.
+Fixing the version of typings seems to become a Best practise anyway as typings cannot follow SemVer and changes in minor version can easily break your build.
+See these issues:
+#14579
+#14569
+#14338
+#13994 (comment)
+
+Use any as generic parameter for expect
+The new typings still let you have the old behaviour, you just need to specify explictily that you want to use any as type like this
+
+expect<any>(element(by.id('id')).getAttribute('attr')).toEqual('myValue');
+Write typings for the async expect functions and add it to your project
+This would be the best solution but should be done by Protractor
+It would probably look something like
+    // UNTESTED CODE!
+    interface AsyncMatchers<T> extends Matchers<Promise<T>> {
+        toBe(expected: Expected<T>, expectationFailOutput?: any): boolean;
+        toEqual(expected: Expected<T>, expectationFailOutput?: any): boolean;
+        toContain(expected: T, expectationFailOutput?: any): boolean;
+        not: AsyncMatchers<T>;
+    }
+Add this code in a protractor.d.ts in your project somewhere the TypeScript compiler can see it and it should resolve your issues, given the promise in expect actually resolves to the type provided in toEqual
+
+
+2. Jasmine Datadriver tesitng, passing array of data in data file
+https://stackoverflow.com/questions/38221397/data-driven-testing-in-protractor
